@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+    http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd"> 
+    <context:component-scan base-package="com.happyfi.approve.controller,com.happyfi.approve.admin.controller,com.happyfi.approve.sysadmin.controller" />  
+    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />  
+ 	<mvc:annotation-driven>
+ 		<mvc:argument-resolvers>
+ 			<bean class="com.happyfi.util.MethodArgumentResolver"/>
+ 		</mvc:argument-resolvers>
+ 		<mvc:message-converters>
+ 			<ref local="mappingJacksonHttpMessageConverter" />
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">  
+                <constructor-arg value="UTF-8" />  
+            </bean> 
+ 		</mvc:message-converters>
+ 	</mvc:annotation-driven>
+    
+    <bean id="objectMapper" class="com.happyfi.util.ObjectMapper"/>
+	<bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">    
+	    <property name="supportedMediaTypes">    
+	        <list>    
+	            <value>application/json;charset=UTF-8</value>    
+	       </list>    
+	    </property>
+	     <property name="objectMapper" ref="objectMapper" />
+	</bean>  
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" lazy-init="false">
+		<property name="messageConverters">
+			<list>
+				<ref bean="mappingJacksonHttpMessageConverter"/>
+		  	</list>
+		 </property>
+		 <property name="webBindingInitializer">  
+            <bean class="com.happyfi.util.DateConverter" />  
+        </property> 
+	</bean>
+  
+    <!-- Spirng 默认启动三个apapter 如果自定义了一个会忽略其他的，当 beanNameUrlMapping 与annotation同时存在时要显示声明    
+        所有 即：当注解形式与声明形式同时开发时需要执行一下三行 
+        <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/> 
+        <bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/> -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/" />
+		<property name="suffix" value=".hf" />
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+	</bean>
+
+	<bean id="multipartResolver"  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	    <property name="maxInMemorySize">
+	        <value>4096</value>
+	    </property>
+	 </bean>
+</beans>
